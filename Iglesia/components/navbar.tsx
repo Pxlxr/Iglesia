@@ -10,6 +10,7 @@ const navLinks = [
   { label: "Inicio", href: "#inicio" },
   { label: "Noticias", href: "#noticias" },
   { label: "Eventos", href: "#eventos" },
+  { label: "Galeria", href: "/galeria" },
   { label: "Contacto", href: "/contacto" },
 ]
 
@@ -49,9 +50,12 @@ export function Navbar() {
             variant="outline"
             size="sm"
             className="border-gold/40 bg-transparent text-gold hover:bg-gold/15 hover:text-gold"
+            asChild
           >
-            <LogIn className="size-4" />
-            <span>Iniciar Sesion</span>
+            <Link href="/login">
+              <LogIn className="size-4" />
+              <span>Iniciar Sesion</span>
+            </Link>
           </Button>
         </div>
 
@@ -87,9 +91,12 @@ export function Navbar() {
             variant="outline"
             size="sm"
             className="mt-2 w-full border-gold/40 bg-transparent text-gold hover:bg-gold/15 hover:text-gold"
+            asChild
           >
-            <LogIn className="size-4" />
-            <span>Iniciar Sesion</span>
+            <Link href="/login">
+              <LogIn className="size-4" />
+              <span>Iniciar Sesion</span>
+            </Link>
           </Button>
         </nav>
       </div>
