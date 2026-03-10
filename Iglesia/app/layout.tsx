@@ -1,30 +1,22 @@
 import type { Metadata } from 'next'
 import { Inter, Merriweather } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { LoadingScreen } from '@/components/loading-screen'
 import './globals.css'
 
 const _inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const _merriweather = Merriweather({ subsets: ["latin"], weight: ["300", "400", "700", "900"], variable: "--font-merriweather" });
 
 export const metadata: Metadata = {
-  title: 'Parroquia San Miguel - Comunidad de Fe',
-  description: 'Bienvenidos a la Parroquia San Miguel. Horarios de misa, eventos comunitarios, noticias y calendario parroquial.',
+  title: 'INGAP - Viviendo el Nuevo Pacto',
+  description: 'Bienvenidos a INGAP. Viviendo el Nuevo Pacto. Eventos, noticias y calendario de la iglesia.',
   icons: {
     icon: [
       {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
+        url: '/images/logo-ingap.png',
       },
     ],
-    apple: '/apple-icon.png',
+    apple: '/images/logo-ingap.png',
   },
 }
 
@@ -36,6 +28,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`${_inter.variable} ${_merriweather.variable} font-sans antialiased`}>
+        <LoadingScreen />
         {children}
         <Analytics />
       </body>

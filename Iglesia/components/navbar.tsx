@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Church, Menu, X, LogIn } from "lucide-react"
+import Image from "next/image"
+import { Menu, X, LogIn } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -21,13 +22,19 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full bg-navy text-primary-foreground shadow-lg">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="flex size-10 items-center justify-center rounded-lg bg-gold/20 transition-colors group-hover:bg-gold/30">
-            <Church className="size-6 text-gold" />
+        <Link href="/" className="flex items-center gap-2 group">
+          <div className="relative size-12 transition-transform group-hover:scale-105">
+            <Image
+              src="/images/logo-ingap.png"
+              alt="INGAP"
+              fill
+              className="object-contain"
+              priority
+            />
           </div>
           <div className="hidden sm:block">
-            <p className="text-sm font-bold tracking-wide text-primary-foreground">Parroquia San Miguel</p>
-            <p className="text-xs text-primary-foreground/60">Comunidad de Fe</p>
+            <p className="text-sm font-bold tracking-wide text-primary-foreground">INGAP</p>
+            <p className="text-xs text-gold/80">Viviendo el Nuevo Pacto</p>
           </div>
         </Link>
 
