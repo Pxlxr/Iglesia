@@ -16,7 +16,9 @@ import {
   X,
   Save,
   Home,
-  Upload
+  Upload,
+  Landmark,
+  QrCode
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -52,9 +54,11 @@ import {
   deleteEvent,
   addGalleryImage,
   updateGalleryImage,
-  deleteGalleryImage
+  deleteGalleryImage,
+  getDonationInfo,
+  updateDonationInfo
 } from "@/lib/content-store"
-import { NewsItem, Event, CalendarEvent, GalleryImage } from "@/lib/types"
+import { NewsItem, Event, CalendarEvent, GalleryImage, DonationInfo } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
 const newsTags = ["Reunion", "Formacion", "Liturgia", "Celebracion", "Anuncio"]
@@ -69,6 +73,7 @@ export default function AdminPage() {
   const [calendarDates, setCalendarDates] = useState<CalendarEvent[]>([])
   const [events, setEvents] = useState<Event[]>([])
   const [gallery, setGallery] = useState<GalleryImage[]>([])
+  const [donation, setDonation] = useState<DonationInfo | null>(null)
   
   // Dialog states
   const [newsDialogOpen, setNewsDialogOpen] = useState(false)
@@ -90,6 +95,18 @@ export default function AdminPage() {
   const [galleryForm, setGalleryForm] = useState({ src: "", alt: "", description: "" })
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [donationForm, setDonationForm] = useState({
+    bankName: "",
+    accountType: "",
+    holderName: "",
+    rut: "",
+    accountNumber: "",
+    email: "",
+    paypalLink: "",
+    paypalQrCode: ""
+  })
+  const [qrPreview, setQrPreview] = useState<string | null>(null)
+  const qrFileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -106,6 +123,10 @@ export default function AdminPage() {
     setCalendarDates(content.calendarDates)
     setEvents(content.events)
     setGallery(content.gallery)
+    const donationInfo = getDonationInfo()
+    setDonation(donationInfo)
+    setDonationForm(donationInfo)
+    setQrPreview(donationInfo.paypalQrCode || null)
   }
 
   const handleLogout = () => {
@@ -207,6 +228,25 @@ export default function AdminPage() {
     loadContent()
   }
 
+  // Donation handlers
+  const handleQrUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const base64String = reader.result as string
+        setDonationForm({ ...donationForm, paypalQrCode: base64String })
+        setQrPreview(base64String)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const saveDonation = () => {
+    updateDonationInfo(donationForm)
+    loadContent()
+  }
+
   // Delete handlers
   const openDeleteDialog = (type: string, id: string, title: string) => {
     setDeleteTarget({ type, id, title })
@@ -300,11 +340,15 @@ export default function AdminPage() {
               <Calendar className="size-4" />
               <span className="hidden sm:inline">Eventos</span>
             </TabsTrigger>
-            <TabsTrigger value="galeria" className="gap-2">
-              <ImageIcon className="size-4" />
-              <span className="hidden sm:inline">Galeria</span>
-            </TabsTrigger>
-          </TabsList>
+<TabsTrigger value="galeria" className="gap-2">
+  <ImageIcon className="size-4" />
+  <span className="hidden sm:inline">Galeria</span>
+  </TabsTrigger>
+  <TabsTrigger value="donaciones" className="gap-2">
+  <Landmark className="size-4" />
+  <span className="hidden sm:inline">Donaciones</span>
+  </TabsTrigger>
+  </TabsList>
 
           {/* Noticias Tab */}
           <TabsContent value="noticias" className="space-y-4">
@@ -502,6 +546,152 @@ export default function AdminPage() {
                   </CardContent>
                 </Card>
               )}
+            </div>
+          </TabsContent>
+
+          {/* Donations Tab */}
+          <TabsContent value="donaciones" className="space-y-4">
+            <div>
+              <h2 className="font-serif text-2xl font-bold">Informacion de Donaciones</h2>
+              <p className="text-sm text-muted-foreground">Configura los datos de transferencia y PayPal</p>
+            </div>
+
+            <div className="grid gap-6 lg:grid-cols-2">
+              {/* Bank Transfer */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Landmark className="size-5" />
+                    Transferencia Bancaria
+                  </CardTitle>
+                  <CardDescription>Datos para transferencias nacionales</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="bankName">Nombre del Banco</Label>
+                    <Input
+                      id="bankName"
+                      value={donationForm.bankName}
+                      onChange={(e) => setDonationForm({ ...donationForm, bankName: e.target.value })}
+                      placeholder="Ej: Banco Estado"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="accountType">Tipo de Cuenta</Label>
+                    <Input
+                      id="accountType"
+                      value={donationForm.accountType}
+                      onChange={(e) => setDonationForm({ ...donationForm, accountType: e.target.value })}
+                      placeholder="Ej: Cuenta Corriente"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="holderName">Nombre del Titular</Label>
+                    <Input
+                      id="holderName"
+                      value={donationForm.holderName}
+                      onChange={(e) => setDonationForm({ ...donationForm, holderName: e.target.value })}
+                      placeholder="Ej: Iglesia INGAP"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="rut">RUT</Label>
+                    <Input
+                      id="rut"
+                      value={donationForm.rut}
+                      onChange={(e) => setDonationForm({ ...donationForm, rut: e.target.value })}
+                      placeholder="Ej: 12.345.678-9"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="accountNumber">Numero de Cuenta</Label>
+                    <Input
+                      id="accountNumber"
+                      value={donationForm.accountNumber}
+                      onChange={(e) => setDonationForm({ ...donationForm, accountNumber: e.target.value })}
+                      placeholder="Ej: 1234567890"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email para Transferencias</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={donationForm.email}
+                      onChange={(e) => setDonationForm({ ...donationForm, email: e.target.value })}
+                      placeholder="Ej: donaciones@ingap.cl"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* PayPal */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <svg className="h-5 w-auto" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M7.076 21.337H2.47a.641.641 0 01-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z" fill="#253B80"/>
+                    </svg>
+                    PayPal
+                  </CardTitle>
+                  <CardDescription>Configuracion para donaciones internacionales</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="paypalLink">Link de PayPal</Label>
+                    <Input
+                      id="paypalLink"
+                      value={donationForm.paypalLink}
+                      onChange={(e) => setDonationForm({ ...donationForm, paypalLink: e.target.value })}
+                      placeholder="Ej: https://paypal.me/tuusuario"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Codigo QR de PayPal</Label>
+                    <input
+                      ref={qrFileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleQrUpload}
+                      className="hidden"
+                    />
+                    <div
+                      onClick={() => qrFileInputRef.current?.click()}
+                      className="relative flex min-h-40 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border bg-muted/30 transition-colors hover:border-primary hover:bg-muted/50"
+                    >
+                      {qrPreview ? (
+                        <div className="relative size-full min-h-40">
+                          <img
+                            src={qrPreview}
+                            alt="QR Preview"
+                            className="mx-auto h-40 w-auto rounded-lg object-contain"
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50 opacity-0 transition-opacity hover:opacity-100">
+                            <p className="text-sm font-medium text-white">Cambiar QR</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex size-12 items-center justify-center rounded-full bg-primary/10">
+                            <QrCode className="size-6 text-primary" />
+                          </div>
+                          <div className="text-center">
+                            <p className="text-sm font-medium">Click para subir codigo QR</p>
+                            <p className="text-xs text-muted-foreground">PNG, JPG hasta 2MB</p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="flex justify-end">
+              <Button onClick={saveDonation} className="bg-primary">
+                <Save className="size-4" />
+                Guardar Cambios
+              </Button>
             </div>
           </TabsContent>
         </Tabs>

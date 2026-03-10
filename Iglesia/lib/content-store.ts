@@ -1,6 +1,6 @@
 "use client"
 
-import { ContentStore, defaultContent, NewsItem, Event, CalendarEvent, GalleryImage } from "./types"
+import { ContentStore, defaultContent, NewsItem, Event, CalendarEvent, GalleryImage, DonationInfo } from "./types"
 
 const STORAGE_KEY = "parroquia-content"
 
@@ -158,6 +158,19 @@ export function deleteGalleryImage(id: string): boolean {
   content.gallery.splice(index, 1)
   saveContent(content)
   return true
+}
+
+// Donation CRUD
+export function getDonationInfo(): DonationInfo {
+  const content = getContent()
+  return content.donation
+}
+
+export function updateDonationInfo(updates: Partial<DonationInfo>): DonationInfo {
+  const content = getContent()
+  content.donation = { ...content.donation, ...updates }
+  saveContent(content)
+  return content.donation
 }
 
 // Reset to defaults

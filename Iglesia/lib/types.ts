@@ -32,11 +32,23 @@ export interface GalleryImage {
   createdAt: number
 }
 
+export interface DonationInfo {
+  bankName: string
+  accountType: string
+  holderName: string
+  rut: string
+  accountNumber: string
+  email: string
+  paypalLink: string
+  paypalQrCode: string
+}
+
 export interface ContentStore {
   news: NewsItem[]
   calendarDates: CalendarEvent[]
   events: Event[]
   gallery: GalleryImage[]
+  donation: DonationInfo
 }
 
 export const defaultContent: ContentStore = {
@@ -121,4 +133,14 @@ export const defaultContent: ContentStore = {
     },
   ],
   gallery: [],
+  donation: {
+    bankName: "Banco Estado",
+    accountType: "Cuenta Corriente",
+    holderName: "Iglesia INGAP",
+    rut: "12.345.678-9",
+    accountNumber: "1234567890",
+    email: "donaciones@ingap.cl",
+    paypalLink: "https://paypal.me/ingap",
+    paypalQrCode: "",
+  },
 }
