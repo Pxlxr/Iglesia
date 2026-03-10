@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { 
-  Church, 
   LogOut, 
   Newspaper, 
   CalendarDays, 
@@ -15,7 +15,8 @@ import {
   Trash2,
   X,
   Save,
-  Home
+  Home,
+  Upload
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -87,6 +88,8 @@ export default function AdminPage() {
   const [eventForm, setEventForm] = useState({ date: "", time: "", title: "", location: "" })
   const [calendarForm, setCalendarForm] = useState({ date: "" })
   const [galleryForm, setGalleryForm] = useState({ src: "", alt: "", description: "" })
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -171,11 +174,26 @@ export default function AdminPage() {
     if (item) {
       setEditingGallery(item)
       setGalleryForm({ src: item.src, alt: item.alt, description: item.description })
+      setImagePreview(item.src)
     } else {
       setEditingGallery(null)
       setGalleryForm({ src: "", alt: "", description: "" })
+      setImagePreview(null)
     }
     setGalleryDialogOpen(true)
+  }
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const base64String = reader.result as string
+        setGalleryForm({ ...galleryForm, src: base64String })
+        setImagePreview(base64String)
+      }
+      reader.readAsDataURL(file)
+    }
   }
 
   const saveGallery = () => {
@@ -185,6 +203,7 @@ export default function AdminPage() {
       addGalleryImage(galleryForm)
     }
     setGalleryDialogOpen(false)
+    setImagePreview(null)
     loadContent()
   }
 
@@ -225,12 +244,18 @@ export default function AdminPage() {
       <header className="sticky top-0 z-50 border-b border-border bg-navy shadow-lg">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
           <div className="flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-lg bg-gold/20">
-              <Church className="size-6 text-gold" />
+            <div className="relative size-12">
+              <Image
+                src="/images/logo-ingap.png"
+                alt="INGAP"
+                fill
+                className="object-contain"
+                priority
+              />
             </div>
             <div>
               <p className="text-sm font-bold text-primary-foreground">Panel de Administracion</p>
-              <p className="text-xs text-primary-foreground/60">Parroquia San Miguel</p>
+              <p className="text-xs text-gold/80">INGAP</p>
             </div>
           </div>
           
@@ -643,26 +668,57 @@ export default function AdminPage() {
       </Dialog>
 
       {/* Gallery Dialog */}
-      <Dialog open={galleryDialogOpen} onOpenChange={setGalleryDialogOpen}>
-        <DialogContent>
+      <Dialog open={galleryDialogOpen} onOpenChange={(open) => {
+        setGalleryDialogOpen(open)
+        if (!open) setImagePreview(null)
+      }}>
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>{editingGallery ? "Editar Imagen" : "Nueva Imagen"}</DialogTitle>
             <DialogDescription>
-              {editingGallery ? "Modifica los datos de la imagen" : "Agrega una nueva imagen a la galeria"}
+              {editingGallery ? "Modifica los datos de la imagen" : "Sube una imagen desde tu computador"}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="gallery-src">URL de la imagen</Label>
-              <Input
-                id="gallery-src"
-                value={galleryForm.src}
-                onChange={(e) => setGalleryForm({ ...galleryForm, src: e.target.value })}
-                placeholder="https://ejemplo.com/imagen.jpg"
+              <Label>Imagen</Label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
               />
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="relative flex min-h-40 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border bg-muted/30 transition-colors hover:border-primary hover:bg-muted/50"
+              >
+                {imagePreview ? (
+                  <div className="relative size-full min-h-40">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="size-full rounded-lg object-contain"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50 opacity-0 transition-opacity hover:opacity-100">
+                      <p className="text-sm font-medium text-white">Cambiar imagen</p>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex size-12 items-center justify-center rounded-full bg-primary/10">
+                      <Upload className="size-6 text-primary" />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm font-medium">Click para subir imagen</p>
+                      <p className="text-xs text-muted-foreground">PNG, JPG, GIF hasta 10MB</p>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="gallery-alt">Titulo / Alt</Label>
+              <Label htmlFor="gallery-alt">Titulo</Label>
               <Input
                 id="gallery-alt"
                 value={galleryForm.alt}
@@ -682,7 +738,10 @@ export default function AdminPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setGalleryDialogOpen(false)}>
+            <Button variant="outline" onClick={() => {
+              setGalleryDialogOpen(false)
+              setImagePreview(null)
+            }}>
               <X className="size-4" />
               Cancelar
             </Button>

@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Church, Eye, EyeOff, Lock, User, ArrowLeft } from "lucide-react"
+import Image from "next/image"
+import { Eye, EyeOff, Lock, User, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -88,16 +89,22 @@ export default function LoginPage() {
         mounted ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
       )}>
         <CardHeader className="space-y-4 text-center">
-          {/* Logo placeholder */}
-          <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-gold/20 ring-2 ring-gold/30 transition-transform hover:scale-105">
-            <Church className="size-8 text-gold" />
+          {/* Logo */}
+          <div className="mx-auto relative size-24 transition-transform hover:scale-105">
+            <Image
+              src="/images/logo-ingap.png"
+              alt="INGAP"
+              fill
+              className="object-contain"
+              priority
+            />
           </div>
           <div>
             <CardTitle className="font-serif text-2xl font-bold text-primary-foreground">
               Panel de Administracion
             </CardTitle>
-            <CardDescription className="mt-2 text-primary-foreground/60">
-              Ingresa tus credenciales para continuar
+            <CardDescription className="mt-2 text-gold/80">
+              INGAP - Viviendo el Nuevo Pacto
             </CardDescription>
           </div>
         </CardHeader>
