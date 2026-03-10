@@ -327,7 +327,7 @@ export default function AdminPage() {
       {/* Main content */}
       <main className="mx-auto max-w-7xl px-4 py-8 lg:px-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
             <TabsTrigger value="noticias" className="gap-2">
               <Newspaper className="size-4" />
               <span className="hidden sm:inline">Noticias</span>
@@ -340,15 +340,15 @@ export default function AdminPage() {
               <Calendar className="size-4" />
               <span className="hidden sm:inline">Eventos</span>
             </TabsTrigger>
-<TabsTrigger value="galeria" className="gap-2">
-  <ImageIcon className="size-4" />
-  <span className="hidden sm:inline">Galeria</span>
-  </TabsTrigger>
-  <TabsTrigger value="donaciones" className="gap-2">
-  <Landmark className="size-4" />
-  <span className="hidden sm:inline">Donaciones</span>
-  </TabsTrigger>
-  </TabsList>
+            <TabsTrigger value="galeria" className="gap-2">
+              <ImageIcon className="size-4" />
+              <span className="hidden sm:inline">Galeria</span>
+            </TabsTrigger>
+            <TabsTrigger value="donaciones" className="gap-2">
+              <Landmark className="size-4" />
+              <span className="hidden sm:inline">Donaciones</span>
+            </TabsTrigger>
+          </TabsList>
 
           {/* Noticias Tab */}
           <TabsContent value="noticias" className="space-y-4">
